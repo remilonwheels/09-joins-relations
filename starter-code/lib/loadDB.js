@@ -6,11 +6,20 @@ const pg = require('pg')
 const Pool = pg.Pool
 const ops = module.exports = {}
 
+// const pool = new Pool({
+//   user: 'postgres',
+//   password: 'qazWSXpostgres77',
+//   host: 'localhost',
+//   database: 'postgres',
+//   max: 10,
+//   idleTimeoutMillis: 1000
+// })
+
 const pool = new Pool({
-  user: 'postgres',
-  password: 'qazWSXpostgres77',
+  user: process.env.USER,
+  password: '',
   host: 'localhost',
-  database: 'postgres',
+  database: process.env.USER,
   max: 10,
   idleTimeoutMillis: 1000
 })

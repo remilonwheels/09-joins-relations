@@ -5,7 +5,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 const app = express();
-const conString = process.env.DATABASE_URL || 'postgres://postgres:qazWSXpostgres77@localhost:5432/postgres';
+// const conString = process.env.DATABASE_URL || 'postgres://postgres:qazWSXpostgres77@localhost:5432/postgres';
+const conString = process.env.DATABASE_URL || 'postgres://localhost:5432';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -88,10 +89,10 @@ app.post('/articles/insert', function(request, response) {
       `, // DONE: Write a SQL query to insert the new article using the author_id from our previous query
       [
         author_id,
-        response.body.title,
-        response.body.category,
-        response.body.publishedOn,
-        response.body.body
+        request.body.title,
+        request.body.category,
+        request.body.publishedOn,
+        request.body.body
       ] // DONE: Add the data from our new article, including the author_id, as data for the SQL query.
     );
   }
@@ -102,30 +103,41 @@ app.post('/articles/insert', function(request, response) {
 
 app.put('/articles/update', function(request, response) {
   let client = new pg.Client(conString);
-
-  client.query(
-    ``, // TODO: Write a SQL query to retrieve the author_id from the authors table for the new article
-    [], // TODO: Add the author name as data for the SQL query
+  console.log(request.body);
+  client.query(`
+    SELECT author_id
+    FROM authors
+    WHERE author=$1
+    `, // DONE: Write a SQL query to retrieve the author_id from the authors table for the new article
+    [request.body.author], // DONE: Add the author name as data for the SQL query
     function(err, result) {
       if (err) console.error(err)
       queryTwo(result.rows[0].author_id)
-      queryThree(result.rows[0].author_id)
+      // queryThree(result.rows[0].author_id)
+      console.log(response.body);
     }
   )
 
   function queryTwo(author_id) {
-    client.query(
-      ``, // TODO: Write a SQL query to update an existing author record
-      [] // TODO: Add the values for this table as data for the SQL query
+    client.query(`
+      UPDATE authors
+      SET author=$1, "authorUrl"=$2
+      WHERE author_id=$3
+      `, // DONE: Write a SQL query to update an existing author record
+      [
+        request.body.author,
+        request.body.authorUrl,
+        author_id
+      ] // DONE: Add the values for this table as data for the SQL query
     )
   }
 
-  function queryThree(author_id) {
-    client.query(
-      ``, // TODO: Write a SQL query to update an existing article record
-      [] // TODO: Add the values for this table as data for the SQL query
-    );
-  }
+  // function queryThree(author_id) {
+  //   client.query(
+  //     ``, // DONE: Write a SQL query to update an existing article record
+  //     [] // DONE: Add the values for this table as data for the SQL query
+  //   );
+  // }
 
   client.connect();
   response.send('insert complete');
